@@ -526,6 +526,18 @@ class MyLoss(torch.nn.Moudle):
         loss = torch.mean((x - y) ** 2)
         return loss
 ```
+## 解决样本不平衡问题
+在分类任务中，常常出现样本不平衡问题，这个问题会导致模型收敛到局部最优解，也就是广泛地将样本全部预测为某一类，因此在这里总结带权重的交叉熵损失的使用方法：
+```python
+    print('use wegithed cross entropy.... ')
+    label_type = np.unique(label.reshape(-1))
+    alpha = np.array([ np.sum(label == x) for x in label_type])
+    alpha = np.max(alpha) / alpha
+    alpha = np.clip(alpha,1,50)
+    alpha = alpha/ np.sum(alpha)
+    loss_fn = t.nn.CrossEntropyLoss(weight = t.tensor(alpha).float()) # 平衡权重
+    loss_fn = loss_fn.to(device)
+```
 ## 标签平滑（label smoothing）
 写一个`label_smoothing.py`的文件，然后在训练代码里引用，用LSR代替交叉熵损失即可。`label_smoothing.py`内容如下：
 ```python
